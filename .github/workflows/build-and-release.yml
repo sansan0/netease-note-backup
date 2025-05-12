@@ -1,0 +1,56 @@
+name: Release
+permissions:
+  contents: write
+on:
+  push:
+    tags:
+      - "v*"
+jobs:
+  build:
+    name: 构建Windows可执行文件
+    runs-on: windows-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      
+      - name: 设置Python环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+          cache: "pip"
+      
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry config virtualenvs.create false
+          poetry install
+      
+      - name: 获取版本号
+        id: get_version
+        shell: bash
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+      
+      - name: 构建可执行文件
+        env:
+          PYTHONIOENCODING: utf-8
+        run: poetry run cxfreeze build
+      
+      - name: 创建ZIP压缩包
+        run: |
+          Compress-Archive -Path build/exe.win-*/* -DestinationPath NetEaseNoteBackup_v${{ env.VERSION }}.zip
+
+      - name: 创建Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          name: 网易云音乐动态备份工具 v${{ env.VERSION }}
+          body: |
+            ### 下载
+            点击下方附件下载应用程序
+          draft: false
+          prerelease: false
+          files: |
+            NetEaseNoteBackup_v${{ env.VERSION }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

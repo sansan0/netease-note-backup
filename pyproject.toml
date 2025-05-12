@@ -1,0 +1,47 @@
+[tool.poetry]
+name = "netease_note_backup"
+version = "1.0.0"
+description = "网易云音乐笔记(个人动态)备份工具，可抓取用户动态并导出为HTML或纯文本"
+authors = ["sansan"]
+readme = "README.md"
+packages = [{ include = "netease" }]
+repository = "https://github.com/sansan0/netease-note-backup"
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.14"
+playwright = "^1.52.0"
+aiohttp = "^3.9.3"
+beautifulsoup4 = "^4.13.4"
+asyncio = "^3.4.3"
+cx-freeze = "^8.2.0"
+pillow = "^11.2.1"
+
+[tool.poetry.scripts]
+netease_note_backup = "netease.run:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.cxfreeze]
+executables = [
+    { script = "netease/run.py", target_name = "NetEaseNoteBackup.exe", base = "Win32GUI", icon = "netease/resources/icon.ico"},
+]
+[tool.cxfreeze.build_exe]
+packages = [
+    "tkinter",
+    "pathlib",
+    "re",
+    "json",
+    "asyncio",
+    "threading",
+    "queue",
+    "bs4",
+    "aiohttp",
+    "playwright",
+    "netease",
+]
+include_files = [
+    "netease/resources/weixin.png",
+]
+include_msvcr = true
